@@ -1,7 +1,27 @@
 # Lex
 
-Offline dictionary PWA for Deutsch, English and Русский. Search runs in a Rust/WASM core over a
-pack stored on the device; nothing is sent to a server.
+Offline dictionary for Deutsch, English and Русский that installs on the iPhone Home Screen.
+About one million entries, no ads, no account. Search runs on the device in a Rust/WASM core;
+nothing is sent to a server.
+
+<p>
+  <img src="docs/search-de.jpg" width="250" alt="Search results for the German word gehen" />
+  <img src="docs/search-ru.jpg" width="250" alt="Search results for the Russian word собака" />
+  <img src="docs/install.jpg" width="250" alt="Install guide shown in Safari" />
+</p>
+
+## Install on iOS
+
+1. Open **https://nikolazius.github.io/leopwa/** in Safari on the iPhone or iPad.
+2. Tap the Share button, then **Add to Home Screen**.
+3. Open **Lex** from the Home Screen. The dictionary (41 MB) downloads once on this first launch;
+   keep the app open until it finishes. If the download is interrupted, it resumes where it stopped.
+
+After that the app works without a connection. The download has to happen in the Home Screen app,
+not in Safari, because iOS gives a Home Screen app its own storage.
+
+To remove the dictionary from the device, open the info button on the start screen and choose
+**Delete dictionary data**, or delete the app from the Home Screen.
 
 ## Layout
 

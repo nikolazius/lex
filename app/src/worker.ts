@@ -253,9 +253,10 @@ async function install() {
 async function remove() {
   closeSources()
   const dirRoot = await root()
-  for await (const name of (dirRoot as unknown as { keys(): AsyncIterable<string> }).keys()) {
-    await dirRoot.removeEntry(name, { recursive: true }).catch(() => {})
-  }
+  // Collect the names first: removing entries while iterating can skip some.
+  const names: string[] = []
+  for await (const name of (dirRoot as unknown as { keys(): AsyncIterable<string> }).keys()) names.push(name)
+  for (const name of names) await dirRoot.removeEntry(name, { recursive: true }).catch(() => {})
   await boot()
 }
 
