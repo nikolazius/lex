@@ -57,3 +57,9 @@ the `gh-pages` branch of `origin` (or of a remote URL passed as the first argume
 
 Ding (TU Chemnitz, GPL), English and Russian Wiktionary via kaikki.org and WikDict (CC BY-SA),
 OpenRussian (CC BY-SA), FrequencyWords (CC BY-SA).
+
+## License
+
+The code is released under the [MIT License](LICENSE). The dictionary data is not covered by it:
+each source keeps its own licence (GPL for Ding, CC BY-SA for the others), which applies to the
+built pack.
