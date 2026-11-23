@@ -33,7 +33,7 @@ get https://raw.githubusercontent.com/Badestrand/russian-dictionary/master/LICEN
 for l in de en ru; do
   get "https://raw.githubusercontent.com/hermitdave/FrequencyWords/master/content/2018/$l/${l}_50k.txt" "$RAW/freq/$l.txt"
 done
-# Wiktionary extracts (kaikki.org), CC BY-SA — about 2.6 GB
+# Wiktionary extracts (kaikki.org), CC BY-SA — about 2.1 GB
 K=https://kaikki.org
 get "$K/dictionary/German/kaikki.org-dictionary-German.jsonl" "$RAW/kaikki/enwikt-de.jsonl"
 get "$K/dictionary/Russian/kaikki.org-dictionary-Russian.jsonl" "$RAW/kaikki/enwikt-ru.jsonl"

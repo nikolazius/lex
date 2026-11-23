@@ -31,7 +31,8 @@ To remove the dictionary from the device, open the info button on the start scre
 - `crates/builder` — ingests the open sources and writes the pack; also a command-line query tool
 - `crates/wasm` — the core compiled for the browser
 - `app` — Svelte UI, dictionary worker, service worker
-- `scripts/fetch.sh` — downloads the sources into `data/raw` (about 2.9 GB)
+- `scripts/fetch.sh` — downloads the raw sources into `data/raw` (about 2.3 GB; only needed to rebuild the
+  dictionary — the app itself downloads the finished 41 MB pack)
 
 ## Build
 
