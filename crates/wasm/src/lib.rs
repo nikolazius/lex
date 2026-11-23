@@ -1,7 +1,7 @@
 //! Raw WASM bindings (no wasm-bindgen): the host passes buffers through `alloc`
 //! and provides `host_read_at` for on-demand reads from the pack files in OPFS.
 
-use leo_core::{Engine, Reader};
+use lex_core::{Engine, Reader};
 use std::cell::RefCell;
 
 #[link(wasm_import_module = "env")]

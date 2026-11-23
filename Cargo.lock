@@ -14,7 +14,7 @@ version = "0.1.0"
 dependencies = [
  "flate2",
  "fst",
- "leo-core",
+ "lex-core",
  "miniz_oxide 0.8.9",
  "serde",
  "serde_json",
@@ -62,7 +62,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3bd1574e617a9a6c1f8f8181bd7e841e1f20e4277607ef28945765188d6284d4"
 
 [[package]]
-name = "leo-core"
+name = "lex-core"
 version = "0.1.0"
 dependencies = [
  "fst",
@@ -70,10 +70,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "leo-wasm"
+name = "lex-wasm"
 version = "0.1.0"
 dependencies = [
- "leo-core",
+ "lex-core",
 ]
 
 [[package]]

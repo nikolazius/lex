@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-leo-core = { path = "../core" }
+lex-core = { path = "../core" }
 fst = "0.4"
 miniz_oxide = "0.8"
 flate2 = "1"

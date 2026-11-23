@@ -7,7 +7,7 @@
 mod ingest;
 
 use ingest::*;
-use leo_core::{norm, Engine, Reader};
+use lex_core::{norm, Engine, Reader};
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::fs::{self, File};
@@ -182,9 +182,9 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
     }
     drop(seen);
     entries.sort_by(|x, y| (x.pair, &x.sort, &x.a, &x.b).cmp(&(y.pair, &y.sort, &y.a, &y.b)));
-    assert!((entries.len() as u32) < leo_core::MAX_ENTRIES, "too many entries for the id width");
-    let mut pair_start = [0u32; leo_core::N_PAIRS + 1];
-    for p in 0..=leo_core::N_PAIRS {
+    assert!((entries.len() as u32) < lex_core::MAX_ENTRIES, "too many entries for the id width");
+    let mut pair_start = [0u32; lex_core::N_PAIRS + 1];
+    for p in 0..=lex_core::N_PAIRS {
         pair_start[p] = entries.partition_point(|e| (e.pair as usize) < p) as u32;
     }
     eprintln!("entries: {} (DE-EN {}, DE-RU {}, EN-RU {})", entries.len(),
@@ -214,16 +214,16 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
                 for (ti, tok) in alt.iter().enumerate() {
                     let rank = if alt.len() == 1 {
                         let q = base + 0.5 * fscore(fq(*lang), tok) - later;
-                        leo_core::RANK_HEAD + q.clamp(0.0, 85.0) as u8
+                        lex_core::RANK_HEAD + q.clamp(0.0, 85.0) as u8
                     } else {
                         let q = (base - later - 6.0 * (alt.len() as f32 - 2.0)).clamp(0.0, 79.0) as u8;
-                        if ti == 0 { leo_core::RANK_FIRST + q } else { leo_core::RANK_OTHER + q }
+                        if ti == 0 { lex_core::RANK_FIRST + q } else { lex_core::RANK_OTHER + q }
                     };
                     let kid = *key_ids.entry(tok.clone()).or_insert_with(|| {
                         lists.push(Vec::new());
                         lists.len() as u32 - 1
                     });
-                    lists[kid as usize].push(leo_core::pack_posting(rank, side as u8, id as u32));
+                    lists[kid as usize].push(lex_core::pack_posting(rank, side as u8, id as u32));
                 }
             }
         }
@@ -245,7 +245,7 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
             postings.extend(p.to_le_bytes());
         }
         n_postings += list.len();
-        fst.insert(key, (((list[0] >> 24) as u64) << leo_core::OFF_BITS) | off).unwrap();
+        fst.insert(key, (((list[0] >> 24) as u64) << lex_core::OFF_BITS) | off).unwrap();
     }
     let fst_bytes = fst.into_inner().unwrap();
     eprintln!("index: {} keys, {} postings", keys.len(), n_postings);
@@ -293,9 +293,9 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
         if cur.is_empty() {
             cur_first = id as u32;
         }
-        leo_core::write_varint(&mut cur, e.a.len());
+        lex_core::write_varint(&mut cur, e.a.len());
         cur.extend(e.a.as_bytes());
-        leo_core::write_varint(&mut cur, e.b.len());
+        lex_core::write_varint(&mut cur, e.b.len());
         cur.extend(e.b.as_bytes());
         cur.push(e.src);
         if cur.len() >= 6000 || id + 1 == entries.len() {
@@ -306,8 +306,8 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
         }
     }
     let mut blocks_idx: Vec<u8> = Vec::new();
-    blocks_idx.extend(leo_core::BLOCKS_MAGIC.to_le_bytes());
-    blocks_idx.extend(leo_core::FORMAT_VERSION.to_le_bytes());
+    blocks_idx.extend(lex_core::BLOCKS_MAGIC.to_le_bytes());
+    blocks_idx.extend(lex_core::FORMAT_VERSION.to_le_bytes());
     for p in pair_start {
         blocks_idx.extend(p.to_le_bytes());
     }
@@ -358,7 +358,7 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
     }
     let manifest = serde_json::json!({
         "version": version,
-        "format": leo_core::FORMAT_VERSION,
+        "format": lex_core::FORMAT_VERSION,
         "entries": entries.len(),
         "pairs": [pair_start[1], pair_start[2] - pair_start[1], pair_start[3] - pair_start[2]],
         "download": total_gz,

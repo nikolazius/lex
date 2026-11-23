@@ -327,7 +327,7 @@ pub fn freq(path: &Path) -> std::collections::HashMap<String, u32> {
     let mut m = std::collections::HashMap::new();
     for (i, line) in lines(path).enumerate() {
         if let Some(w) = line.split(' ').next() {
-            for t in leo_core::norm::tokenize(w) {
+            for t in lex_core::norm::tokenize(w) {
                 m.entry(t).or_insert(i as u32 + 1);
             }
         }

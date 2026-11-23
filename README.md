@@ -12,7 +12,9 @@ nothing is sent to a server.
 
 ## Install on iOS
 
-1. Open **https://nikolazius.github.io/leopwa/** in Safari on the iPhone or iPad.
+<img src="docs/qr.svg" width="160" align="right" alt="QR code for https://nikolazius.github.io/lex/" />
+
+1. Scan the QR code with the iPhone camera, or open **https://nikolazius.github.io/lex/** in Safari.
 2. Tap the Share button, then **Add to Home Screen**.
 3. Open **Lex** from the Home Screen. The dictionary (41 MB) downloads once on this first launch;
    keep the app open until it finishes. If the download is interrupted, it resumes where it stopped.

@@ -1,5 +1,5 @@
 [package]
-name = "leo-wasm"
+name = "lex-wasm"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,4 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-leo-core = { path = "../core" }
+lex-core = { path = "../core" }
