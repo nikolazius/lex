@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "lex-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "app", "run", "dev", "--", "--port", "5183", "--strictPort"],
+      "port": 5183
+    },
+    {
+      "name": "lex-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "app", "run", "preview", "--", "--port", "5184", "--strictPort"],
+      "port": 5184
+    }
+  ]
+}

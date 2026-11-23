@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = ["crates/core", "crates/wasm", "crates/builder"]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,7 @@
+data/
+target/
+node_modules/
+app/dist/
+app/public/packs/
+app/public/core.wasm
+.DS_Store
