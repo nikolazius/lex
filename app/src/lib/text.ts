@@ -20,8 +20,25 @@ export const SOURCES: [bit: number, name: string][] = [
 const OPEN = '{[(<'
 const CLOSE = '}])>'
 
-/** Splits display text into plain runs and dimmed annotation runs ({m}, [tech.], (hint)). */
-export function segments(s: string): { t: string; dim: boolean }[] {
+const ARTICLE: Record<string, string> = { m: 'der', f: 'die', n: 'das' }
+
+/** German gender tags as articles: {f} -> {die}, {m,n} -> {der/das}. Other tags are left alone. */
+function articles(tag: string): string {
+  const genders = tag.slice(1, -1).split(/[,/]/).map((g) => g.trim())
+  return genders.every((g) => g in ARTICLE) ? `{${genders.map((g) => ARTICLE[g]).join('/')}}` : tag
+}
+
+/**
+ * Splits display text into plain runs and dimmed annotation runs ({m}, [tech.], (hint)).
+ * With `lang` set to German, gender tags are shown as articles.
+ */
+export function segments(s: string, lang?: Lang): { t: string; dim: boolean }[] {
+  const out = split(s)
+  if (lang === 'de') for (const x of out) if (x.dim && x.t[0] === '{' && x.t.endsWith('}')) x.t = articles(x.t)
+  return out
+}
+
+function split(s: string): { t: string; dim: boolean }[] {
   const out: { t: string; dim: boolean }[] = []
   let depth = 0
   let start = 0

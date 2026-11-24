@@ -81,6 +81,110 @@ fn alts(text: &str, comma: bool) -> Vec<Vec<String>> {
     out
 }
 
+/// Byte ranges of the alternatives of one side, split at separators outside annotations.
+fn parts(text: &str, comma: bool) -> Vec<(usize, usize)> {
+    let mut out = Vec::new();
+    let (mut depth, mut start) = (0i32, 0);
+    for (i, c) in text.char_indices() {
+        match c {
+            '{' | '[' | '(' | '<' => depth += 1,
+            '}' | ']' | ')' | '>' => depth = (depth - 1).max(0),
+            ';' | ',' if depth == 0 && (c == ';' || comma) => {
+                out.push((start, i));
+                start = i + 1;
+            }
+            _ => {}
+        }
+    }
+    out.push((start, text.len()));
+    out
+}
+
+/// Gender bits (1 = m, 2 = f, 4 = n) of a "{m}" or "{m,f}" tag in the part, if it has exactly one.
+fn gender_bits(part: &str) -> Option<u8> {
+    let mut found = None;
+    let mut rest = part;
+    while let Some(i) = rest.find('{') {
+        let j = i + rest[i..].find('}')?;
+        let mut bits = 0u8;
+        for g in rest[i + 1..j].split(',') {
+            bits |= match g.trim() {
+                "m" => 1,
+                "f" => 2,
+                "n" => 4,
+                _ => {
+                    bits = 0;
+                    break;
+                }
+            };
+        }
+        if bits != 0 {
+            if found.is_some() {
+                return None;
+            }
+            found = Some(bits);
+        }
+        rest = &rest[j + 1..];
+    }
+    found
+}
+
+/// Adds the gender to German nouns that lack it (WikDict and OpenRussian carry none), taken from the
+/// entries of the other sources that spell the noun the same way. Returns the number of sides changed.
+fn fill_genders(entries: &mut [Entry]) -> usize {
+    let key = |part: &str| strip_annotations(part).split_whitespace().collect::<Vec<_>>().join(" ");
+    let german = |e: &Entry| e.pair == DE_EN || e.pair == DE_RU; // German is side a of both pairs
+    let mut known: HashMap<String, [u32; 3]> = HashMap::new();
+    for e in entries.iter().filter(|e| german(e)) {
+        for (s, t) in parts(&e.a, e.comma.0) {
+            let part = &e.a[s..t];
+            let Some(bits) = gender_bits(part) else { continue };
+            let k = key(part);
+            if k.is_empty() {
+                continue;
+            }
+            let counts = known.entry(k).or_default();
+            for g in 0..3 {
+                counts[g] += u32::from(bits >> g & 1);
+            }
+        }
+    }
+    let mut changed = 0;
+    for e in entries.iter_mut().filter(|e| german(e)) {
+        let mut out = String::new();
+        let mut at = 0;
+        for (s, t) in parts(&e.a, e.comma.0) {
+            let part = &e.a[s..t];
+            if part.contains('{') {
+                continue;
+            }
+            let Some(counts) = known.get(&key(part)) else { continue };
+            // A gender seen only in a stray entry is more likely a source error than a second gender.
+            let most = *counts.iter().max().unwrap();
+            let tag: Vec<&str> = (0..3).filter(|&g| counts[g] * 5 >= most).map(|g| ["m", "f", "n"][g]).collect();
+            // The tag goes right after the word, before trailing notes: "Katze {f} (Peitsche)".
+            let (mut depth, mut end) = (0i32, 0);
+            for (i, c) in part.char_indices() {
+                match c {
+                    '{' | '[' | '(' | '<' => depth += 1,
+                    '}' | ']' | ')' | '>' => depth = (depth - 1).max(0),
+                    _ if depth == 0 && !c.is_whitespace() => end = i + c.len_utf8(),
+                    _ => {}
+                }
+            }
+            out.push_str(&e.a[at..s + end]);
+            out.push_str(&format!(" {{{}}}", tag.join(",")));
+            at = s + end;
+        }
+        if at > 0 {
+            out.push_str(&e.a[at..]);
+            e.a = out;
+            changed += 1;
+        }
+    }
+    changed
+}
+
 struct Entry {
     pair: u8,
     a: String,
@@ -181,6 +285,8 @@ fn build(raw: &Path, pack: &Path, public: &Path) {
         forms_raw.extend(batch.forms);
     }
     drop(seen);
+    let filled = fill_genders(&mut entries);
+    eprintln!("genders: {filled} German sides completed");
     entries.sort_by(|x, y| (x.pair, &x.sort, &x.a, &x.b).cmp(&(y.pair, &y.sort, &y.a, &y.b)));
     assert!((entries.len() as u32) < lex_core::MAX_ENTRIES, "too many entries for the id width");
     let mut pair_start = [0u32; lex_core::N_PAIRS + 1];

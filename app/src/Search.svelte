@@ -1,7 +1,7 @@
 <script lang="ts">
   import { engine, install, removeData, search, type Group, type Item } from './lib/engine.svelte'
   import { addRecent, clearRecents, isStarred, library, toggleStar, type Saved } from './lib/store.svelte'
-  import { alternatives, canSpeak, LANG_CODE, LANG_NAME, megabytes, PAIRS, plain, segments, SOURCES, speak } from './lib/text'
+  import { alternatives, canSpeak, LANG_CODE, LANG_NAME, megabytes, PAIRS, plain, segments, SOURCES, speak, type Lang } from './lib/text'
   import Sheet from './Sheet.svelte'
 
   type Selected = Saved & { side: number }
@@ -95,8 +95,8 @@
   })
 </script>
 
-{#snippet rich(text: string)}
-  {#each segments(text) as s}{#if s.dim}<i>{s.t}</i>{:else}{s.t}{/if}{/each}
+{#snippet rich(text: string, lang: Lang)}
+  {#each segments(text, lang) as s}{#if s.dim}<i>{s.t}</i>{:else}{s.t}{/if}{/each}
 {/snippet}
 
 <div
@@ -119,8 +119,8 @@
       <h2>Starred</h2>
       {#each library.stars as s (s.pair + s.a + s.b)}
         <button class="row" onclick={() => (selected = { ...s, side: 0 })}>
-          <span class="l">{@render rich(s.a)}</span>
-          <span class="r">{@render rich(s.b)}</span>
+          <span class="l">{@render rich(s.a, PAIRS[s.pair][0])}</span>
+          <span class="r">{@render rich(s.b, PAIRS[s.pair][1])}</span>
         </button>
       {/each}
     {/if}
@@ -157,8 +157,8 @@
         <h2>{LANG_NAME[langs[0]]} <span class="arrow">→</span> {LANG_NAME[langs[1]]}</h2>
         {#each g.items as it (it[0])}
           <button class="row" onclick={() => open(g, it)}>
-            <span class="l">{@render rich(g.side === 0 ? it[1] : it[2])}</span>
-            <span class="r">{@render rich(g.side === 0 ? it[2] : it[1])}</span>
+            <span class="l">{@render rich(g.side === 0 ? it[1] : it[2], langs[0])}</span>
+            <span class="r">{@render rich(g.side === 0 ? it[2] : it[1], langs[1])}</span>
           </button>
         {/each}
       </section>
@@ -225,7 +225,7 @@
       <div class="side">
         <div class="lang">{LANG_NAME[s.lang]}</div>
         <div class="term-row">
-          <p class="term selectable" lang={s.lang}>{@render rich(s.text)}</p>
+          <p class="term selectable" lang={s.lang}>{@render rich(s.text, s.lang)}</p>
           {#if canSpeak}
             <button class="icon-btn" aria-label="Listen in {LANG_NAME[s.lang]}" onclick={() => speak(s.text, s.lang)}>
               <svg viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5zM15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /></svg>
